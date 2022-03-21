@@ -20,10 +20,11 @@ typedef struct{
 }code;//3508编码器数据记录
 
 typedef struct{
-	float raccel[3];
-	float rgyro[3];
-	float yaw;
-	float begin_yaw;
-	float v1,v2,v3,v4,vx,vy,w;//开始时磁力计数据	
+	float raccel[3];//car accel
+	float rgyro[3];//car gyro
+	float yaw;//car yaw
+	float begin_yaw;//car yaw begin
+	int carx,cary;
+	float v1,v2,v3,v4,vx,vy,w;//与车速度相关的的定义
 }CAR;//车体参数记录
 #endif

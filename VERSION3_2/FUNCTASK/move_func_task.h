@@ -8,5 +8,5 @@
 
 extern void move_pid_calc(void);
 extern void move_pid_init(void);
-
+extern void coder_move_calc(uint8_t num);
 #endif

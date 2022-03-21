@@ -17,8 +17,8 @@ void door_reset(void);//pick_servo
 void front_door_lift(void);
 void front_door_down(void);//front_servo
 	
-void rockert_level(void);
-void rocker_vertical(void);
+void rocket_level(void);
+void rocket_vertical(void);
 void rocket_reserse_side(void);//rockrt_servo
 
 void back_door_away(void);

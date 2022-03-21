@@ -139,15 +139,6 @@ int main(void)
   HAL_TIM_Base_Start(&htim10);//imu_temp
   HAL_TIM_PWM_Start(&htim10,TIM_CHANNEL_1);
   PID_init(&imu_temp_pid,PID_POSITION,imu_temp_PID,TEMPERATURE_PID_MAX_OUT,TEMPERATURE_PID_MAX_IOUT);//imu heat pid
-	
-	__HAL_TIM_SetCompare(&htim1,TIM_CHANNEL_1,1500);
-	__HAL_TIM_SetCompare(&htim1,TIM_CHANNEL_2,1500);
-	__HAL_TIM_SetCompare(&htim1,TIM_CHANNEL_3,1500);
-	__HAL_TIM_SetCompare(&htim1,TIM_CHANNEL_4,1500);
-	
-	__HAL_TIM_SetCompare(&htim8,TIM_CHANNEL_1,1500);
-	__HAL_TIM_SetCompare(&htim8,TIM_CHANNEL_2,1500);
-	__HAL_TIM_SetCompare(&htim8,TIM_CHANNEL_3,1500);
 
 	can_filter_init();//配置CAN滤波器
 	delay_init();//初始化延时
