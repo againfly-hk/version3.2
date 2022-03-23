@@ -78,6 +78,7 @@ void OrderTask(void const * argument){
 		//超声波数据暂时不使用
 		//龙门架高度作为一个单独的程序控制
 		//编码器用来控制运动轨迹，使用和速度一样的解算方式
+		
         osDelay(10);
     }
 }

@@ -122,15 +122,15 @@ void MX_FREERTOS_Init(void) {
 
   /* Create the thread(s) */
   /* definition and creation of test */
-  osThreadDef(test, test_task, osPriorityNormal, 0, 128);
+  osThreadDef(test, test_task, osPriorityNormal, 0, 512);
   testHandle = osThreadCreate(osThread(test), NULL);
 
   /* definition and creation of line_detect */
-  osThreadDef(line_detect, line_detect_task, osPriorityNormal, 0, 128);
+  osThreadDef(line_detect, line_detect_task, osPriorityNormal, 0, 512);
   line_detectHandle = osThreadCreate(osThread(line_detect), NULL);
 
   /* definition and creation of Order */
-  osThreadDef(Order, OrderTask, osPriorityRealtime, 0, 128);
+  osThreadDef(Order, OrderTask, osPriorityRealtime, 0, 512);
   OrderHandle = osThreadCreate(osThread(Order), NULL);
 
   /* USER CODE BEGIN RTOS_THREADS */

@@ -1,10 +1,10 @@
 /*
  * @Author: your name
  * @Date: 2022-03-03 09:56:33
- * @LastEditTime: 2022-03-06 12:39:36
- * @LastEditors: Please set LastEditors
+ * @LastEditTime: 2022-03-23 15:21:42
+ * @LastEditors: AFShk
  * @Description: 打开koroFileHeader查看配置 进行设置: https://github.com/OBKoro1/koro1FileHeader/wiki/%E9%85%8D%E7%BD%AE
- * @FilePath: \RC2022\Os_Task\line_detect.c
+ * @FilePath: \version3.2\VERSION3_2\OSTASK\line_detect.c
  */
 #include "FreeRTOS.h"
 #include "task.h"
@@ -35,6 +35,7 @@ extern uint8_t sbus_erroflag;
 extern uint16_t sbus_channel[16];//sbus data
 extern CAR car;
 extern int frame_high;
+extern uint8_t gyro_flag;
 
 uint8_t no_motor_flag=1;
 uint8_t rx_line_buff[5];
@@ -46,27 +47,30 @@ float accel_fliter3[3]={0.0f ,0.0f ,0.0f};
 
 void sbus_order(void);//函数的声明
 void line_detect_init(void);//初始化配置函数
-	
 
 void line_detect_task(void const * argument)
 {
-	line_detect_init();
+	line_detect_init();//初始化各个传感器的位置及数据等
 	while(1){
-		sbus_order();
-		move_pid_calc();
-		osDelay(3);
+		#ifdef sbus_using
+			sbus_order();
+			move_pid_calc();
+		#endif // 使用遥控器控制
+		osDelay(5);
 	}
 }
+
+
 
 void line_detect_init(void)//初始化配置函数
 {
 	while(ist8310_init())	{osDelay(2);}
 	while(BMI088_init())	{osDelay(2);}
-	door_left();
-	right_door_on();
-	left_door_on();
-	front_door_down();
-	back_door_down();
+//	door_left();
+//	right_door_on();
+//	left_door_on();
+//	front_door_down();
+//	back_door_down();
 	door_reset();
 	osDelay(5);
 	__HAL_UART_ENABLE_IT(&huart1,UART_IT_IDLE);
@@ -75,6 +79,9 @@ void line_detect_init(void)//初始化配置函数
 	HAL_UART_Receive_DMA(&huart1,rx_line_buff,5);
 	HAL_UART_Receive_DMA(&huart3,rec_sbus_data,25);
 	HAL_UART_Receive_DMA(&huart6,rx_echo_buff,2);
+	while(gyro_flag!=2){
+		osDelay(1);
+	}
 	frame_pid_init();
 	move_pid_init();
 	HAL_CAN_Start(&hcan1);
@@ -83,7 +90,7 @@ void line_detect_init(void)//初始化配置函数
 		no_motor_flag=0;
 	#endif
 }
-	
+
 void sbus_order(void)//遥控器数据处理函数
 {
 	#ifdef sbus_using
@@ -91,7 +98,7 @@ void sbus_order(void)//遥控器数据处理函数
 		no_motor_flag=0;
 	else
 		no_motor_flag=1;//安全模式
-	
+
 	if(no_motor_flag==0&&sbus_channel[4]<1500&&sbus_channel[5]>100){//速度的解算
 		if(sbus_channel[5]<1500)	frame_high=(int)match(400,1700,310000,0,sbus_channel[2]);
 		if(sbus_channel[1]>=1100)
@@ -107,9 +114,9 @@ void sbus_order(void)//遥控器数据处理函数
 		else car.vy=0;
 
 		if(sbus_channel[3]>=1100)
-			car.w=(sbus_channel[3]-1024)/100.0f;
+			car.w=-(sbus_channel[3]-1024)/100.0f;
 		else if(sbus_channel[3]<=950)
-			car.w=-(1024-sbus_channel[3])/100.0f;
+			car.w=(1024-sbus_channel[3])/100.0f;
 		else car.w=0;
 	}
 	else{
