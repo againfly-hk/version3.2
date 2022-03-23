@@ -12,7 +12,7 @@ ch3 ch4 ch2 ch1
 */
 void sbus_calc(void)
 {
-  if(rec_sbus_data[23]==0x03)
+  if(rec_sbus_data[0]==0x0f)
 	{
 		sbus_channel[0]  = ((rec_sbus_data[1]|rec_sbus_data[2]<<8) & 0x07FF);
 		sbus_channel[1]  = ((rec_sbus_data[2]>>3 |rec_sbus_data[3]<<5) & 0x07FF);
