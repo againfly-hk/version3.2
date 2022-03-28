@@ -16,7 +16,7 @@
 #define frame_right_max_iout 600
 
 extern motor_measure_t motor_chassis[7];
-	
+
 pid_type_def frame_pid[2];
 int frame_delta[2];
 int frame_change[2];
@@ -38,9 +38,9 @@ void frame_pid_init()
 void frame_reset()
 {
 	CAN_cmd_portal_frame(0,0,0);
-//	if(frame_change[0]<5000)	
+//	if(frame_change[0]<5000)
 		frame_change[0]=0;
-//	if(frame_change[1]<5000)	
+//	if(frame_change[1]<5000)
 		frame_change[1]=0;
 }
 
@@ -52,7 +52,7 @@ void frame_code_control(uint16_t i)
 		frame_delta[i-4]=-((8192-motor_chassis[i].ecd)+motor_chassis[i].last_ecd);
 	else
 		frame_delta[i-4]=motor_chassis[i].ecd-motor_chassis[i].last_ecd;
-	frame_change[i-4]+=frame_delta[i-4];	
+	frame_change[i-4]+=frame_delta[i-4];
 
 	PID_calc(&frame_pid[0],frame_change[0],frame_high);
 				PID_calc(&frame_pid[1],frame_change[1],frame_high);

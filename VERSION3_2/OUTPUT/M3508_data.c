@@ -1,3 +1,13 @@
+/*
+ * @Author: AFShk
+ * @Date: 2022-03-13 21:03:28
+ * @LastEditors: AFShk
+ * @LastEditTime: 2022-03-28 15:00:42
+ * @FilePath: \VERSION3_2\OUTPUT\M3508_data.c
+ * @Description: 
+ * 
+ * Copyright (c) 2022 by 用户/公司名, All Rights Reserved. 
+ */
 #include "M3508_data.h"
 #include "CAN_receive.h"
 #include "main.h"
@@ -6,19 +16,15 @@
 #include "Callback.h"
 #include "math.h"
 #include "can.h"
-
+#include "move_func_task.h"
 //eztern
 extern CAN_HandleTypeDef hcan1;
 extern pid_type_def frame_pid[2];
 extern int frame_high;
-extern int motor_coder_record[4];
 
 //declare
 motor_measure_t motor_chassis[7];
 code motor_3508[4];
-uint8_t coder_pose_matrix[3][3]={1, 0, 0,
-								 0, 1, 0,
-								 0, 0, 1};
 
 void HAL_CAN_RxFifo0MsgPendingCallback(CAN_HandleTypeDef *hcan)
 {
@@ -78,25 +84,6 @@ void motor_03_code(uint8_t i)//this is coder motor 0,3;
 	motor_3508[i].change-=motor_3508[i].delta;
 }
 
-void coder_postion_calc(void)
-{
-	motor_coder_record[0]=motor_3508[0].change;
-	motor_coder_record[1]=motor_3508[1].change;
-	motor_coder_record[2]=motor_3508[2].change;
-	motor_coder_record[3]=motor_3508[3].change;
-
-}
-/*
-机赛车的底盘：
-1     0
-2     3
-用速度矩阵和姿态矩阵解算解算位移
-AFSpace_explorer
-
-
-
-
-*/
 
 
 

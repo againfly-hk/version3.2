@@ -1,8 +1,8 @@
 #include "usart.h"
 #include "sbus.h"
 #include "tim.h"
-
-#define sbus_led
+#include "condition.h"
+//define to using led
 uint8_t rec_sbus_data[25];
 uint8_t sbus_erroflag;
 uint16_t sbus_channel[16];
@@ -30,7 +30,7 @@ void sbus_calc(void)
 		sbus_channel[13] = ((rec_sbus_data[18]>>7|rec_sbus_data[19]<<1|rec_sbus_data[20]<<9)& 0x07FF);
 		sbus_channel[14] = ((rec_sbus_data[20]>>2|rec_sbus_data[21]<<6) & 0x07FF);
 		sbus_channel[15] = ((rec_sbus_data[21]>>5|rec_sbus_data[22]<<3) & 0x07FF);
-    sbus_erroflag=0;
+    	sbus_erroflag=0;
 		#ifdef sbus_led
 		__HAL_TIM_SetCompare(&htim5,TIM_CHANNEL_2,1000);
 		__HAL_TIM_SetCompare(&htim5,TIM_CHANNEL_3,0);
@@ -44,5 +44,4 @@ void sbus_calc(void)
 		#endif
 		sbus_erroflag=1;
 	}
-		
 }

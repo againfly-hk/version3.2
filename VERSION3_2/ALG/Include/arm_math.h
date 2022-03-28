@@ -153,7 +153,7 @@
    * <hr>
    * Revision History of CMSIS-DSP
    * ------------
-   * Please refer to \ref ChangeLog_pg.
+   * Please refer to \ref Changleog_pg.
    *
    * Copyright Notice
    * ------------

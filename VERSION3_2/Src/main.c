@@ -37,6 +37,7 @@
 #include "pid.h"
 #include "callback.h"
 #include "door_control.h"
+#include "move_func_task.h"
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
@@ -46,6 +47,7 @@
 
 /* Private define ------------------------------------------------------------*/
 /* USER CODE BEGIN PD */
+#define sbus_using
 /* USER CODE END PD */
 
 /* Private macro -------------------------------------------------------------*/
@@ -115,6 +117,7 @@ int main(void)
   MX_TIM1_Init();
   MX_TIM4_Init();
   MX_USART3_UART_Init();
+  MX_TIM7_Init();
   /* USER CODE BEGIN 2 */
 	HAL_TIM_Base_Start(&htim1);//servo 1-4
   HAL_TIM_PWM_Start(&htim1,TIM_CHANNEL_1);
@@ -125,7 +128,7 @@ int main(void)
 	HAL_TIM_Base_Start(&htim4);//Buzzer
 	HAL_TIM_PWM_Start(&htim4,TIM_CHANNEL_3);
 
-	HAL_TIM_Base_Start(&htim5);//LED
+	HAL_TIM_Base_Start(&htim5);//LED PWM OUTPUT
 	HAL_TIM_PWM_Start(&htim5,TIM_CHANNEL_1);
 	HAL_TIM_PWM_Start(&htim5,TIM_CHANNEL_2);
 	HAL_TIM_PWM_Start(&htim5,TIM_CHANNEL_3);
@@ -139,14 +142,16 @@ int main(void)
   HAL_TIM_PWM_Start(&htim10,TIM_CHANNEL_1);
   PID_init(&imu_temp_pid,PID_POSITION,imu_temp_PID,TEMPERATURE_PID_MAX_OUT,TEMPERATURE_PID_MAX_IOUT);//imu heat pid
 
-	door_reset();
-	right_door_on();
-	left_door_on();
-	front_door_down();
-	back_door_down();
+	door_reset();//BoPian
+	right_door_on();//Right door on
+	left_door_on();//Right door off
+	front_door_down();//Front door down
+	back_door_down();//Back door down
+  //rocket state
 
-	can_filter_init();//配置CAN滤波�?
-	delay_init();//初始化延�?
+
+	can_filter_init();//配置CAN滤波,
+	delay_init();//初始化delay,库代码使用，自己不使用
   /* USER CODE END 2 */
 
   /* Call init function for freertos objects (in freertos.c) */
@@ -229,6 +234,12 @@ void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim)
   if (htim->Instance == TIM6) {
     HAL_IncTick();
   }
+	else if(htim == &htim7)
+	{
+		#ifndef sbus_using
+			move_pid_calc();
+		#endif
+	}
   /* USER CODE BEGIN Callback 1 */
 
   /* USER CODE END Callback 1 */

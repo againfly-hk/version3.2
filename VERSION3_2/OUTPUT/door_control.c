@@ -3,9 +3,9 @@
 tim8ch1 backdoor
 tim8ch2 leftdoor
 tim8ch3 rightdoor
-tim1ch1 
+tim1ch1
 tim1ch2 frontdoor
-tim1ch3 rocket 
+tim1ch3 rocket
 tim1ch4 door
 */
 
