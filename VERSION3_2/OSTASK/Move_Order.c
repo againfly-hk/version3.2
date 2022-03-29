@@ -30,12 +30,12 @@
 #include "Buzzer.h"
 #include "condition.h"
 //testing private
-#ifdef move_angle_using
+#ifdef move_yaw_using
 uint8_t move_angle_flag=0;
 #endif
 
 order car_order;//移动的命令
-extern uint8_t temp_flag;
+extern uint8_t temp_flag;                                                                                                         
 extern uint8_t gyro_flag;
 extern float quat[];
 extern float mag[];
@@ -47,6 +47,7 @@ extern uint8_t accel_fliter_flag;
 
 
 void OrderTask(void const * argument){
+//	Buzzer_PlayMusic(Music_Dayu);//播放音乐
 	while(temp_flag==0){
 		osDelay(1);
 	}
@@ -67,7 +68,7 @@ void OrderTask(void const * argument){
 	osDelay(5);
 	gyro_flag=2;
 	osDelay(5);
-	while(accel_fliter_flag!=2){
+	while(accel_fliter_flag!=1){
 		osDelay(1);
 	}
 	osDelay(50);
@@ -76,15 +77,9 @@ void OrderTask(void const * argument){
 	car.begin_yaw=get_yaw(quat)*180.0f/3.1415926f;//以当前yaw作为初始角度，上电时一定要记住放好
 	car.begin_ryaw=car.begin_yaw;				//其实后面还可以加一个自动变正的代码
 	#ifdef move_yaw_using
-	move_angle_flag=1;
+		move_angle_flag=1;
 	#endif
 	#ifndef sbus_using
-//		car.carx=0;
-//		car.cary=0;
-//		car.vx=0;
-//		car.vy=0;
-//		car.w1=0;
-//		car.w2=0;
 		HAL_TIM_Base_Start_IT(&htim7);
   #endif
     for(;;){//这个任务暂时还没用到

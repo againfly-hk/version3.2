@@ -22,6 +22,7 @@
 #include "stm32f4xx_it.h"
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
+#include "condition.h"
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
@@ -388,6 +389,7 @@ void DMA2_Stream7_IRQHandler(void)
 void USART6_IRQHandler(void)
 {
   /* USER CODE BEGIN USART6_IRQn 0 */
+	#ifdef echo_using
 	uint8_t temp;
 	if(__HAL_UART_GET_FLAG(&huart6,UART_FLAG_IDLE)!=RESET){
 		__HAL_UART_CLEAR_IDLEFLAG(&huart6);
@@ -396,6 +398,7 @@ void USART6_IRQHandler(void)
 	}
 	rx_echo=rx_echo_buff[0]*256+rx_echo_buff[1];
 	HAL_UART_Receive_DMA(&huart6,rx_echo_buff,2);
+	#endif
   /* USER CODE END USART6_IRQn 0 */
   HAL_UART_IRQHandler(&huart6);
   /* USER CODE BEGIN USART6_IRQn 1 */

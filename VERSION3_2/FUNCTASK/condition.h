@@ -11,9 +11,9 @@
 #ifndef __CONDITION_H__
 #define __CONDITION_H__
 
-//#define sbus_using
-//#define sbus_led
-//#define move_yaw_using
+#define sbus_using
+#define sbus_led
+#define move_yaw_using
 //#define echo_using
 
 

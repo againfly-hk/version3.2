@@ -57,7 +57,7 @@ void line_detect_task(void const * argument)
 		#ifdef sbus_using
 			sbus_order();
 			move_pid_calc();
-		  osDelay(3);
+		  osDelay(2);
 		#endif // 使用遥控器控制
 
 		#ifndef sbus_using//自动控制模式
@@ -92,7 +92,6 @@ void line_detect_init(void)//初始化配置函数
 	#endif
 	__HAL_UART_ENABLE_IT(&huart1,UART_IT_IDLE);
 	HAL_UART_Receive_DMA(&huart1,rx_line_buff,5);//接收红外数据
-	Buzzer_PlayMusic(Music_Dayu);//播放音乐
 	while(gyro_flag!=2){
 		osDelay(1);
 	}
@@ -138,6 +137,5 @@ void sbus_order(void)//遥控器数据处理函数
 		car.w1=0;
 		frame_high=0;
 	}
-}
 #endif
-
+}
