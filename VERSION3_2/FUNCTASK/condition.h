@@ -2,7 +2,7 @@
  * @Author: AFShk
  * @Date: 2022-03-28 11:07:24
  * @LastEditors: AFShk
- * @LastEditTime: 2022-03-28 14:57:21
+ * @LastEditTime: 2022-03-29 17:37:23
  * @FilePath: \VERSION3_2\FUNCTASK\condition.h
  * @Description: 
  * 
@@ -11,8 +11,8 @@
 #ifndef __CONDITION_H__
 #define __CONDITION_H__
 
-#define sbus_using
-#define sbus_led
+//#define sbus_using
+//#define sbus_led
 #define move_yaw_using
 //#define echo_using
 

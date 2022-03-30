@@ -29,10 +29,10 @@ typedef struct{
 }CAR;//车体参数记录
 
 typedef struct{
-	uint8_t vector_x;
-	uint8_t vector_y;
-	uint8_t expect_speed;
-	uint8_t expext_distance;
+	int16_t vector_x;
+	int16_t vector_y;
+	int16_t expect_speed;
+	int16_t expext_distance;
 }order;
 //if vector_x =111,龙门架抬升，speed——flag代表高度
 //if vector_x=222,车旋转，speed为w

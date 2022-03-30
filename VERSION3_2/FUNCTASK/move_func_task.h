@@ -12,4 +12,5 @@ extern void coder_move_calc(uint8_t num);
 extern void angle_pid_calc(float order ,float now);
 extern void angle_pid_init(void);
 extern void coder_postion_calc(void);
+float angle_calc(float begin ,float add);
 #endif

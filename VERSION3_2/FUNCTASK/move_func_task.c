@@ -95,10 +95,10 @@ void angle_pid_calc(float order ,float now)//yaw的pid解析
 		if(car.w1!=0){
 			car.w2=0;
 			car.begin_yaw=car.yaw;
-			return;
-		}	
-	#endif			
-	float delta;	
+			reurn;
+		}
+	#endif
+	float delta;
 	if(car.w1==0)
 	{
 
@@ -116,7 +116,7 @@ void angle_pid_calc(float order ,float now)//yaw的pid解析
 		car.w2=0;
 	if(fabs(delta)<2.0f)
 		angle_ok=1;
-	else 
+	else
 		angle_ok=0;
 	if(fabs(order-now)<25.0f&&fabs(order-now)>8.0f)
 	{
@@ -131,7 +131,7 @@ int16_t int16_abs(int16_t num)
 {
 	if(num<0)
 		return -num;
-	else 
+	else
 		return num;
 }
 //void coder_postion_calc(void)
