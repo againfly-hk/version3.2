@@ -1,7 +1,7 @@
 /*
  * @Author: your name
  * @Date: 2022-03-03 09:56:33
- * @LastEditTime: 2022-03-28 14:48:23
+ * @LastEditTime: 2022-04-01 12:11:28
  * @LastEditors: AFShk
  * @Description: 打开koroFileHeader查看配置 进行设置: https://github.com/OBKoro1/koro1FileHeader/wiki/%E9%85%8D%E7%BD%AE
  * @FilePath: \VERSION3_2\OSTASK\line_detect.c
@@ -23,11 +23,13 @@
 #include "move_func_task.h"
 #include "Buzzer.h"
 #include "door_control.h"
-
+#include "condition.h"
+#include "openmv_communicate.h"
 #include "ist8310.h"
 #include "bmi088_driver.h"
-#include "condition.h"
-
+#include "bmi088.h"
+#include "callback.h"
+#include "pid.h"
 //这里里面主要是用遥控器控制的代码
 #ifdef sbus_using
 extern uint8_t rec_sbus_data[];
@@ -38,14 +40,16 @@ extern uint16_t sbus_channel[16];//sbus data
 uint8_t rx_echo_buff[2];
 int16_t rx_echo;
 #endif
-
+extern uint8_t order_flag;
 extern volatile CAR car;
 extern int frame_high;
 extern uint8_t gyro_flag;
-
+extern Openmv_Struct Openmv_TX,Openmv_RX;
 uint8_t no_motor_flag=1;
 uint8_t rx_line_buff[5];
-
+uint8_t sensor_flag=0;
+static const fp32 imu_temp_PID[3] = {TEMPERATURE_PID_KP, TEMPERATURE_PID_KI, TEMPERATURE_PID_KD};//pid data
+extern pid_type_def	imu_temp_pid;//temp pid
 
 void sbus_order(void);//函数的声明
 void line_detect_init(void);//初始化配置函数
@@ -61,27 +65,34 @@ void line_detect_task(void const * argument)
 		#endif // 使用遥控器控制
 
 		#ifndef sbus_using//自动控制模式
-		car.vx=20;
-		car.vy=0;
-		osDelay(5000);
-		car.vx=0;
-		car.vy=20;
-		osDelay(5000);
-		car.vx=-20;
-		car.vy=0;
-		osDelay(5000);
-		car.vx=0;
-		car.vy=-20;
-		osDelay(5000);
+		Openmv_Data_Transmit(&Openmv_TX);
+		osDelay(50);
+//		car.vx=20;
+//		car.vy=0;
+//		osDelay(5000);
+//		car.vx=0;
+//		car.vy=20;
+//		osDelay(5000);
+//		car.vx=-20;
+//		car.vy=0;
+//		osDelay(5000);
+//		car.vx=0;
+//		car.vy=-20;
+//		osDelay(5000);
 		#endif
 	}
 }
 
 void line_detect_init(void)//初始化配置函数
 {
-	while(ist8310_init())	{osDelay(2);}
-	while(BMI088_init())	{osDelay(2);}
-	osDelay(5);
+	HAL_TIM_Base_Start(&htim10);//imu_temp
+  HAL_TIM_PWM_Start(&htim10,TIM_CHANNEL_1);
+  PID_init(&imu_temp_pid,PID_POSITION,imu_temp_PID,TEMPERATURE_PID_MAX_OUT,TEMPERATURE_PID_MAX_IOUT);//imu heat pid
+	TIM5->CCR1=0;
+	TIM5->CCR3=500;//传感器初始化	
+	while(BMI088_init()) osDelay(1);	
+	while(ist8310_init())	osDelay(1);
+	sensor_flag=1;
 	#ifdef sbus_using
 	__HAL_UART_ENABLE_IT(&huart3,UART_IT_IDLE);
 	HAL_UART_Receive_DMA(&huart3,rec_sbus_data,25);
@@ -92,15 +103,18 @@ void line_detect_init(void)//初始化配置函数
 	#endif
 	__HAL_UART_ENABLE_IT(&huart1,UART_IT_IDLE);
 	HAL_UART_Receive_DMA(&huart1,rx_line_buff,5);//接收红外数据
-	while(gyro_flag!=2){
+	while(order_flag==0){
 		osDelay(1);
 	}
 	frame_pid_init();
 	move_pid_init();
 	osDelay(1);
-	HAL_CAN_Start(&hcan1);
+	HAL_CAN_Start(&hcan1);//can1 to control chassis
 	HAL_CAN_ActivateNotification(&hcan1,CAN_IT_RX_FIFO0_MSG_PENDING);
+	HAL_CAN_Start(&hcan2);//can2 to communicate with OpenMV
+	HAL_CAN_ActivateNotification(&hcan2,CAN_IT_RX_FIFO0_MSG_PENDING);
 	osDelay(1);
+	TIM5->CCR2=1000;
 }
 
 #ifdef sbus_using
@@ -137,5 +151,5 @@ void sbus_order(void)//遥控器数据处理函数
 		car.w1=0;
 		frame_high=0;
 	}
-#endif
 }
+#endif

@@ -46,11 +46,11 @@ typedef __packed struct BMI088_RAW_DATA
 
 typedef struct BMI088_REAL_DATA
 {
+    uint8_t status;
     fp32 accel[3];
     fp32 temp;
     fp32 gyro[3];
     fp32 time;
-    uint8_t status;
 } bmi088_real_data_t;
 
 

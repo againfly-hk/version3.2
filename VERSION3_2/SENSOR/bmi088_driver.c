@@ -61,16 +61,17 @@ static void BMI088_read_muli_reg(uint8_t reg, uint8_t *buf, uint8_t len);
 
 #endif
 		
+//矩阵
 static uint8_t write_BMI088_accel_reg_data_error[BMI088_WRITE_ACCEL_REG_NUM][3] =
     {
         {BMI088_ACC_PWR_CTRL, BMI088_ACC_ENABLE_ACC_ON, BMI088_ACC_PWR_CTRL_ERROR},
         {BMI088_ACC_PWR_CONF, BMI088_ACC_PWR_ACTIVE_MODE, BMI088_ACC_PWR_CONF_ERROR},
-        {BMI088_ACC_CONF,  BMI088_ACC_NORMAL| BMI088_ACC_800_HZ | BMI088_ACC_CONF_MUST_Set, BMI088_ACC_CONF_ERROR},
+        {BMI088_ACC_CONF,  BMI088_ACC_OSR4| BMI088_ACC_400_HZ | BMI088_ACC_CONF_MUST_Set, BMI088_ACC_CONF_ERROR},
         {BMI088_ACC_RANGE, BMI088_ACC_RANGE_3G, BMI088_ACC_RANGE_ERROR},
         {BMI088_INT1_IO_CTRL, BMI088_ACC_INT1_IO_ENABLE | BMI088_ACC_INT1_GPIO_PP | BMI088_ACC_INT1_GPIO_LOW, BMI088_INT1_IO_CTRL_ERROR},
         {BMI088_INT_MAP_DATA, BMI088_ACC_INT1_DRDY_INTERRUPT, BMI088_INT_MAP_DATA_ERROR}
 
-};//800hz刷新率
+};//800hz加速度计
 
 static uint8_t write_BMI088_gyro_reg_data_error[BMI088_WRITE_GYRO_REG_NUM][3] =
     {
@@ -110,7 +111,7 @@ uint8_t BMI088_init(void)//初始化bmi088
     return error;
 }
 
-bool_t bmi088_accel_init(void)//
+bool_t bmi088_accel_init(void)//初始化加速度寄存器
 {
     volatile uint8_t res = 0;
     uint8_t write_reg_num = 0;
@@ -155,7 +156,7 @@ bool_t bmi088_accel_init(void)//
     return BMI088_NO_ERROR;
 }
 
-bool_t bmi088_gyro_init(void)//
+bool_t bmi088_gyro_init(void)//初始化陀螺仪寄存器
 {
     uint8_t write_reg_num = 0;
     uint8_t res = 0;
@@ -200,7 +201,7 @@ bool_t bmi088_gyro_init(void)//
     return BMI088_NO_ERROR;
 }
 
-bool_t bmi088_accel_self_test(void)//
+bool_t bmi088_accel_self_test(void)//加速度计自检程序
 {
 
     int16_t self_test_accel[2][3];
@@ -312,7 +313,7 @@ bool_t bmi088_accel_self_test(void)//
 
     return BMI088_NO_ERROR;
 }
-bool_t bmi088_gyro_self_test(void)//
+bool_t bmi088_gyro_self_test(void)//陀螺仪自检程序
 {
     uint8_t res = 0;
     uint8_t retry = 0;
@@ -413,7 +414,7 @@ void BMI088_read(fp32 gyro[3], fp32 accel[3], fp32 *temperate)//read gryo accel 
     uint8_t buf[8] = {0, 0, 0, 0, 0, 0};
     int16_t bmi088_raw_temp;
 
-    BMI088_accel_read_muli_reg(BMI088_ACCEL_XOUT_L, buf, 6);//
+    BMI088_accel_read_muli_reg(BMI088_ACCEL_XOUT_L, buf, 6);//读加速度计
     bmi088_raw_temp = (int16_t)((buf[1]) << 8) | buf[0];
     accel[0] = bmi088_raw_temp * BMI088_ACCEL_SEN;
     bmi088_raw_temp = (int16_t)((buf[3]) << 8) | buf[2];
@@ -426,9 +427,7 @@ void BMI088_read_gyro(fp32 gyro[3], fp32 *temperate)//only read gyro
 {
     uint8_t buf[8] = {0, 0, 0, 0, 0, 0};
     int16_t bmi088_raw_temp;
-		
-		
-    BMI088_gyro_read_muli_reg(BMI088_GYRO_CHIP_ID, buf, 8);//
+    BMI088_gyro_read_muli_reg(BMI088_GYRO_CHIP_ID, buf, 8);//读陀螺仪
     if(buf[0] == BMI088_GYRO_CHIP_ID_VALUE)
     {
         bmi088_raw_temp = (int16_t)((buf[3]) << 8) | buf[2];
@@ -438,16 +437,13 @@ void BMI088_read_gyro(fp32 gyro[3], fp32 *temperate)//only read gyro
         bmi088_raw_temp = (int16_t)((buf[7]) << 8) | buf[6];
         gyro[2] = bmi088_raw_temp * BMI088_GYRO_SEN;
     }
-		
-    BMI088_accel_read_muli_reg(BMI088_TEMP_M, buf, 2);//
+    BMI088_accel_read_muli_reg(BMI088_TEMP_M, buf, 2);//读温度计
     bmi088_raw_temp = (int16_t)((buf[0] << 3) | (buf[1] >> 5));
     if (bmi088_raw_temp > 1023)
     {
         bmi088_raw_temp -= 2048;
     }
     *temperate = bmi088_raw_temp * BMI088_TEMP_FACTOR + BMI088_TEMP_OFFSET;
-				
-
 }
 
 uint32_t get_BMI088_sensor_time(void)//*time = sensor_time * 39.0625f;
@@ -523,7 +519,7 @@ static void BMI088_read_single_reg(uint8_t reg, uint8_t *return_data)
 {
     BMI088_read_write_byte(reg | 0x80);//10000000
     *return_data = BMI088_read_write_byte(0x55);
-}//0x55
+}//0x55随便
 
 //static void BMI088_write_muli_reg(uint8_t reg, uint8_t* buf, uint8_t len )
 //{

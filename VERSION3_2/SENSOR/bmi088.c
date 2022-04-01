@@ -1,14 +1,3 @@
-/*
- * @Author: AFShk
- * @Date: 2022-03-03 10:07:03
- * @LastEditors: AFShk
- * @LastEditTime: 2022-03-07 20:41:20
- * @FilePath: \RC2022\Sensor\bmi088.c
- * @Description: 
- * 
- * Copyright (c) 2022 by 用户/公司名, All Rights Reserved. 
- */
-
 #include "bmi088.h"
 #include "main.h"
 #include "cmsis_os.h"

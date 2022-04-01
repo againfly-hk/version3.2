@@ -3,6 +3,6 @@
 
 #include "struct_typedef.h"
 
-extern void can_filter_init(void);
+extern void can1_filter_init(void);
 
 #endif

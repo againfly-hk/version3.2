@@ -1,6 +1,8 @@
 {
     "files.associations": {
         "m3508_data.h": "c",
-        "move_func_task.h": "c"
+        "move_func_task.h": "c",
+        "openmv_communicate.h": "c",
+        "condition.h": "c"
     }
 }

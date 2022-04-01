@@ -31,8 +31,8 @@ typedef struct{
 typedef struct{
 	int16_t vector_x;
 	int16_t vector_y;
-	int16_t expect_speed;
-	int16_t expext_distance;
+	int expect_speed;
+	int expext_distance;
 }order;
 //if vector_x =111,龙门架抬升，speed——flag代表高度
 //if vector_x=222,车旋转，speed为w

@@ -2,7 +2,7 @@
  * @Author: AFShk
  * @Date: 2022-03-03 10:39:41
  * @LastEditors: AFShk
- * @LastEditTime: 2022-03-28 10:50:03
+ * @LastEditTime: 2022-04-01 21:15:48
  * @FilePath: \VERSION3_2\SINGAL\Callback.c
  * @Description:
  *
@@ -58,17 +58,66 @@ void HAL_UART_RxCpltCallback(UART_HandleTypeDef *huart)
 
 void HAL_GPIO_EXTI_Callback(uint16_t GPIO_Pin){
 	if(GPIO_Pin==INT1_ACCEL_Pin){
-		float temp;
-		BMI088_read(imu_real_data.gyro,imu_real_data.accel,&temp);
-//		BMI088_read(test11,test12,&temp);
-//		if(temp>0&&temp<70)
-//			imu_real_data.temp=temp;
-//		temp1=temp;
-		if(gyro_flag==2)
-		{
+		get_BMI088_accel(imu_real_data.accel);
+		if(gyro_flag==2){
 			car.raccel[0]=imu_real_data.accel[0];
 			car.raccel[1]=imu_real_data.accel[1];
 			car.raccel[2]=imu_real_data.accel[2];
+		}
+	}
+	if(GPIO_Pin==INT1_GYRO_Pin){
+		//温度控制////////////////////////////////////////////////////////////////////////
+		float temp;
+		BMI088_read_gyro(imu_real_data.gyro,&temp);
+		if(temp>25&&temp<70)
+			imu_real_data.temp=temp;
+		//////////////////////////////////////////////////////////////////////////////////
+		if(!temp_flag){
+			if(imu_real_data.temp>43.0f){
+				temp_flag=1;
+				imu_temp_pid.Iout=MPU6500_TEMP_PWM_MAX/2;
+				__HAL_TIM_SetCompare(&htim10,TIM_CHANNEL_1,imu_temp_pid.Iout);
+				return;
+			}
+			__HAL_TIM_SetCompare(&htim10,TIM_CHANNEL_1,MPU6500_TEMP_PWM_MAX);
+			return;
+		}//温度未到43度时最大功率加热
+		else if(temp_flag!=0){
+			PID_calc(&imu_temp_pid,imu_real_data.temp,45.0f);
+			if (imu_temp_pid.out < 0.0f)	imu_temp_pid.out = 0.0f;
+			__HAL_TIM_SetCompare(&htim10,TIM_CHANNEL_1,imu_temp_pid.out);
+		}//PID控制温度
+		//////////////////////////////////////////////////////////////////////////////////
+		if(gyro_flag==2){
+			for(uint8_t i=0;i<3;i++){
+				car.rgyro[i]=imu_real_data.gyro[i]-gyro_erro[i];
+//				gyro_erro[i]=(gyro_erro[i]+0.000005f*imu_real_data.gyro[i])/1.000005f;
+			}//陀螺仪数据消除误差
+			AHRS_update(quat,0.001f,car.rgyro,car.raccel,mag);//更新四元数
+			car.yaw=get_yaw(quat)*180.0f/3.1415926f;//更新角度
+		}
+		else if(gyro_flag==1){
+				AHRS_init(quat, car.raccel, mag);//初始化quat，姿态解算完成
+		}
+  }
+	if(GPIO_Pin==IST8310_EXIT_Pin){
+		ist8310_read_mag(mag);//读取磁力计角度
+	}
+	if(GPIO_Pin==Failture_Pin){
+		failure_warning=10;//安全模式
+	}
+}
+
+/*
+void accel_fliter(){
+
+}
+
+void gyro_fliter(){
+
+}
+*/
+
 //			if(accel_fliter_flag==1)
 //			{
 //				accel_fliter1[0]=accel_fliter1[1];
@@ -100,56 +149,4 @@ void HAL_GPIO_EXTI_Callback(uint16_t GPIO_Pin){
 //				accel_fliter_flag=1;
 //				return;
 //			}
-		}
-	}
-	if(GPIO_Pin==INT1_GYRO_Pin){
-		//温度控制/////////////////////////////////////////////////////////////////////////
-		//BMI088_read(imu_real_data.gyro,imu_real_data.accel,&imu_real_data.temp);
-		float temp;
-		BMI088_read_gyro(imu_real_data.gyro,&temp);
-//		BMI088_read_gyro(test2,&temp);
-		if(temp>25&&temp<70)
-			imu_real_data.temp=temp;
-//		temp2=temp;
-		if(!temp_flag){
-			if(imu_real_data.temp>43.0f){
-				temp_flag=1;
-				imu_temp_pid.Iout=MPU6500_TEMP_PWM_MAX/2;
-				__HAL_TIM_SetCompare(&htim10,TIM_CHANNEL_1,imu_temp_pid.Iout);
-				return;
-			}
-			__HAL_TIM_SetCompare(&htim10,TIM_CHANNEL_1,MPU6500_TEMP_PWM_MAX);
-			return;
-		}//温度未到43度时最大功率加热
-		else if(temp_flag!=0){
-			PID_calc(&imu_temp_pid,imu_real_data.temp,45.0f);
-			if (imu_temp_pid.out < 0.0f)	imu_temp_pid.out = 0.0f;
-			__HAL_TIM_SetCompare(&htim10,TIM_CHANNEL_1,imu_temp_pid.out);
-		}//PID控制温度
 
-		if(temp_flag!=0&&gyro_flag==2&&accel_fliter_flag==1){
-			for(uint8_t i=0;i<3;i++){
-				car.rgyro[i]=imu_real_data.gyro[i]-gyro_erro[i];
-//				gyro_erro[i]=(gyro_erro[i]+0.000005f*imu_real_data.gyro[i])/1.000005f;
-			}//陀螺仪数据消除误差
-			AHRS_update(quat,0.001f,car.rgyro,car.raccel,mag);//更新四元数
-			car.yaw=get_yaw(quat)*180.0f/3.1415926f;//更新角度
-		}
-  }
-	if(GPIO_Pin==IST8310_EXIT_Pin){
-		ist8310_read_mag(mag);//读取磁力计角度
-	}
-	if(GPIO_Pin==Failture_Pin){
-		failure_warning=10;//安全模式
-	}
-}
-
-/*
-void accel_fliter(){
-
-}
-
-void gyro_fliter(){
-
-}
-*/
